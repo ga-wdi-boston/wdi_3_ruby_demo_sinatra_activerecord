@@ -27,12 +27,16 @@ get '/' do
   erb :index
 end
 
-# Shows a single guitar by ID number
-get '/guitars/:id' do
-
+get '/guitars/new' do
+  erb :new
 end
 
-get '/guitars/new' do
+# Shows a single guitar by ID number
+get '/guitars/:id' do
+  id = params[:id]
+  sql = "SELECT * FROM guitars WHERE id=#{id}"
+  @guitar = run_sql(sql).first
+  erb :show
 end
 
 # This route creates a new guitar in the database
@@ -45,8 +49,8 @@ post '/guitars/new' do
   color = params[:color]
 
   sql = "INSERT INTO guitars (make, model, year, color) VALUES ('#{make}', '#{model}', #{year}, '#{color}') RETURNING id"
-  new_id = run_sql(sql)
-  redirect to "/guitars/#{id}"
+  new_id = run_sql(sql).first
+  redirect to "/guitars/#{new_id["id"]}"
 end
 
 get '/guitars/:id/edit' do

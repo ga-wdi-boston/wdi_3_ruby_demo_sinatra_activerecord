@@ -1,0 +1,6 @@
+dl.inline dt, dl.inline dd {
+    display: inline;
+}
+dl.inline dt {
+    font-weight: bold;
+}
