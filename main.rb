@@ -2,31 +2,28 @@ require 'pg'
 require 'sinatra'
 require 'sinatra/reloader' if development?
 require 'pry' if development?
+require 'sinatra/activerecord'
 
-helpers do
-  # This helps us run SQL commands
-  # Make sure to run the guitar.sql first as seen below
-  # createdb guitar_development
-  # psql -d guitar_development -f guitars.sql
-  def run_sql(sql)
-    db = PG.connect(dbname: 'guitar_development', host: 'localhost')
-    result = db.exec(sql)
-    db.close
-    result
-  end
-end
+set :database, {adapter: "postgresql",
+                database: "guitar_development_new",
+                host: 'localhost'}
+
 
 ########################
 ## Guitars Collection ##
 ########################
 
+#inherits from the ActiveRecord::Base class
+class Guitar < ActiveRecord::Base
+end
+
 # This route shows entire list of guitar
 get '/' do
-  sql = "SELECT * FROM guitars"
-  @guitars = run_sql(sql)
+  @guitars = Guitar.all
   erb :index
 end
 
+# This is the route that shows you the page to make new guitars
 get '/guitars/new' do
   erb :new
 end
@@ -34,29 +31,20 @@ end
 # Shows a single guitar by ID number
 get '/guitars/:id' do
   id = params[:id]
-  sql = "SELECT * FROM guitars WHERE id=#{id}"
-  @guitar = run_sql(sql).first
+  @guitar = Guitar.find(id)
   erb :show
 end
 
 # This route creates a new guitar in the database
 # The form for this one is in the GET '/guitars/new' route above
 post '/guitars/new' do
-  # Pulling in the params from the data posted in the form
-  make =  params[:make]
-  model = params[:model]
-  year =  params[:year]
-  color = params[:color]
-
-  sql = "INSERT INTO guitars (make, model, year, color) VALUES ('#{make}', '#{model}', #{year}, '#{color}') RETURNING id"
-  new_id = run_sql(sql).first
-  redirect to "/guitars/#{new_id["id"]}"
+  guitar = Guitar.create(params)
+  redirect to "/guitars/#{guitar.id}"
 end
 
 get '/guitars/:id/edit' do
   id = params[:id]
-  sql = "SELECT * FROM guitars WHERE id=#{id}"
-  @guitar = run_sql(sql).first
+  @guitar = Guitar.find(id)
   erb :edit
 end
 
@@ -70,16 +58,19 @@ post '/guitars/:id/update' do
   year =  params[:year]
   color = params[:color]
 
-  sql = "UPDATE guitars SET (make, model, year, color) = ('#{make}', '#{model}', #{year}, '#{color}') WHERE id=#{id}"
-  run_sql(sql)
-  redirect to "/guitars/#{id}"
+  guitar = Guitar.find(id)
+  guitar.make = make
+  guitar.model = model
+  guitar.year = year
+  guitar.color = color
+  guitar.save
+  redirect to "/guitars/#{guitar.id}"
 end
 
 # This route deletes a guitar record.
 # This should probably be a DELETE or POST, but this is simpler for the moment
 get '/guitars/:id/delete' do
   id = params[:id]
-  sql = "DELETE FROM guitars WHERE id=#{id}"
-  run_sql(sql)
+  Guitar.find(id).destroy
   redirect to '/'
 end
