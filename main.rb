@@ -24,6 +24,6 @@ end
 
 # This route creates a new guitar in the database
 # The form for this one is in the GET '/guitars/new' route above
-post '/guitars/new'
+post '/guitars/new' do
 end
 
