@@ -5,7 +5,9 @@ require 'pry' if development?
 
 helpers do
   # This helps us run SQL commands
-  # Make sure to run the guitar.sql first
+  # Make sure to run the guitar.sql first as seen below
+  # createdb guitar_development
+  # psql -d guitar_development -f guitars.sql
   def run_sql(sql)
     db = PG.connect(dbname: 'guitar_development', host: 'localhost')
     result = db.exec(sql)
