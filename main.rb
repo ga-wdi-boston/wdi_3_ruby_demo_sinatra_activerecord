@@ -27,3 +27,14 @@ end
 post '/guitars/new' do
 end
 
+get '/guitars/:id/edit' do
+end
+
+# This route updates a guitar record
+# Form for this is the GET '/guitars/:id/edit above'
+put '/guitars/:id' do
+end
+
+# This route deletes a guitar record
+delete '/guitars/:id' do
+end
