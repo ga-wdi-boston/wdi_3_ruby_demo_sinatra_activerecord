@@ -56,7 +56,7 @@ end
 get '/guitars/:id/edit' do
   id = params[:id]
   sql = "SELECT * FROM guitars WHERE id=#{id}"
-  @guitar = run_sql(sql)
+  @guitar = run_sql(sql).first
   erb :edit
 end
 
@@ -70,14 +70,15 @@ post '/guitars/:id/update' do
   year =  params[:year]
   color = params[:color]
 
-  sql = "UPDATE guitar SET (make, model, year, color) = ('#{make}', '#{model}', #{year}, '#{color}') WHERE id=#{id}"
+  sql = "UPDATE guitars SET (make, model, year, color) = ('#{make}', '#{model}', #{year}, '#{color}') WHERE id=#{id}"
   run_sql(sql)
   redirect to "/guitars/#{id}"
 end
 
-# This route deletes a guitar record
-post '/guitars/:id/delete' do
-  id = id[:params]
+# This route deletes a guitar record.
+# This should probably be a DELETE or POST, but this is simpler for the moment
+get '/guitars/:id/delete' do
+  id = params[:id]
   sql = "DELETE FROM guitars WHERE id=#{id}"
   run_sql(sql)
   redirect to '/'
